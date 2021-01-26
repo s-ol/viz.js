@@ -9,19 +9,20 @@ function render(instance, src, options) {
 
   instance['ccall']('vizSetY_invert', 'number', ['number'], [options.yInvert ? 1 : 0]);
   instance['ccall']('vizSetNop', 'number', ['number'], [options.nop ? options.nop : 0]);
-  
   var resultPointer = instance['ccall']('vizRenderFromString', 'number', ['string', 'string', 'string'], [src, options.format, options.engine]);
-  var resultString = instance['Pointer_stringify'](resultPointer);
-  instance['ccall']('free', 'number', ['number'], [resultPointer]);
-
   var errorMessagePointer = instance['ccall']('vizLastErrorMessage', 'number', [], []);
-  var errorMessageString = instance['Pointer_stringify'](errorMessagePointer);
-  instance['ccall']('free', 'number', ['number'], [errorMessagePointer]);
 
-  if (errorMessageString != '') {
+	if (errorMessagePointer !== 0) {
+    var errorMessageString = instance['UTF8ToString'](errorMessagePointer);
+    instance['ccall']('free', 'number', ['number'], [errorMessagePointer]);
     throw new Error(errorMessageString);
+	}
+	if (!resultPointer) {
+    throw new Error('unknown graphviz error');
   }
   
+  var resultString = instance['UTF8ToString'](resultPointer);
+  instance['ccall']('free', 'number', ['number'], [resultPointer]);
   return resultString;
 }
 

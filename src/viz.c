@@ -23,8 +23,8 @@ char* vizLastErrorMessage() {
 
 void vizCreateFile(char *path, char *data) {
   EM_ASM_({
-    var path = Pointer_stringify($0);
-    var data = Pointer_stringify($1);
+    var path = UTF8ToString($0);
+    var data = UTF8ToString($1);
     
     FS.createPath("/", PATH.dirname(path));
     FS.writeFile(PATH.join("/", path), data);
